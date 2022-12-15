@@ -20,7 +20,7 @@
   (with-open [rdr (io/reader input)]
     (reduce (fn add-row-score
               [total row]
-              (let [[their-choice my-choice] (str/split row #"\s+" )
+              (let [[their-choice my-choice] (str/split row #"\s+")
                     outcome-score (cond
                                     (beats? their-choice my-choice) 0
                                     (draw? their-choice my-choice) 3

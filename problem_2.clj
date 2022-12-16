@@ -1,37 +1,58 @@
 (ns problem-2
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
-            [portal.api :as portal]))
+            [clojure.string :as str]))
 
-(def ^:private choice->score {"X" 1, "Y" 2, "Z" 3})
-(def ^:private choice->beats {"A" "Z", "B" "X", "C" "Y"})
+(def ^:private right->score {"X" 1, "Y" 2, "Z" 3})
+(def ^:private left->beats {"A" "Z", "B" "X", "C" "Y"})
 (def ^:private left->right {"A" "X", "B" "Y", "C" "Z"})
+(def ^:private desired-result {"X" :lose, "Y" :draw, "Z" :win})
+(def ^:private left->loses-to {"A" "Y" "B" "Z" "C" "X"})
 
-(defn- ^:private draw?
+(defn- draw?
   [left right]
   (= (left->right left) right))
 
 (defn- beats?
-  [x y]
-  (= (choice->beats x) y))
+  [left right]
+  (= (left->beats left) right))
 
-(defn input->score
+(defn- desired-result->choice
+  [result left]
+  (case (desired-result result)
+    :win
+    (left->loses-to left)
+
+    :draw
+    (left->right left)
+
+    :lose
+    (left->beats left)))
+
+(defn- add-row-score
+  [total [their-choice my-choice :as _row]]
+  (let [outcome-score (cond
+                        (beats? their-choice my-choice) 0
+                        (draw? their-choice my-choice) 3
+                        :else 6)
+        choice-score (right->score my-choice)]
+    (+ total outcome-score choice-score)))
+
+(defn input->score1
   [input]
   (with-open [rdr (io/reader input)]
-    (reduce (fn add-row-score
-              [total row]
-              (let [[their-choice my-choice] (str/split row #"\s+")
-                    outcome-score (cond
-                                    (beats? their-choice my-choice) 0
-                                    (draw? their-choice my-choice) 3
-                                    :else 6)
-                    choice-score (choice->score my-choice)]
-                (tap> outcome-score)
-                (tap> choice-score)
-                (+ total outcome-score choice-score)))
-            0
-            (line-seq rdr))))
+    (reduce add-row-score 0 (->> rdr
+                                 line-seq
+                                 (map #(str/split % #"\s+"))))))
+
+(defn input->score2
+  [input]
+  (with-open [rdr (io/reader input)]
+    (reduce add-row-score 0 (->> rdr
+                                 line-seq
+                                 (map #(str/split % #"\s+"))
+                                 (map (fn [[left right]]
+                                        [left (desired-result->choice right left)]))))))
 
 (comment
-  (let [p (portal/open)]
-    (add-tap #'portal/submit)))
+  (input->score1 "data/problem-2-1.txt")
+  (input->score2 "data/problem-2-1.txt"))

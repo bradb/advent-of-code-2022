@@ -32,14 +32,10 @@
      (fn sum-badges
        [acc group]
        (let [item (->> group
-                       (map #(-> %
-                                 (str/split #"")
-                                 set))
+                       (map set)
                        (apply set/intersection)
                        first
-                       (.getBytes)
-                       (map int)
-                       first
+                       int
                        item->priority)]
          (+ acc item)))
      0

@@ -1,6 +1,5 @@
 (ns problem-3
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
             [clojure.set :as set]))
 
 (defn sum-priorities
@@ -13,8 +12,8 @@
                        (map set))
 
                   dupe-int (-> (set/intersection s1 s2)
-                           first
-                           int)]
+                               first
+                               int)]
               (if (>= dupe-int 97)
                 (+ acc (- dupe-int 96))
                 (+ acc (- dupe-int 38)))))

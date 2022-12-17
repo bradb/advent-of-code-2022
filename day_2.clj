@@ -1,4 +1,4 @@
-(ns problem-2
+(ns day-2
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
@@ -58,5 +58,5 @@
                                         [left (desired-result->choice right left)]))))))
 
 (comment
-  (input->score1 "problem-2-1.txt")
-  (input->score2 "problem-2-1.txt"))
+  (input->score1 "day-2.txt")
+  (input->score2 "day-2.txt"))

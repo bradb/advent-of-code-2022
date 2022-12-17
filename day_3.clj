@@ -1,4 +1,4 @@
-(ns problem-3
+(ns day-3
   (:require [clojure.java.io :as io]
             [clojure.set :as set]
             [clojure.string :as str]))
@@ -42,7 +42,7 @@
      groups)))
 
 (comment
-  (with-open [rdr (-> "problem-3-1.txt"
+  (with-open [rdr (-> "day-3.txt"
                       io/resource
                       io/reader)]
     (-> rdr

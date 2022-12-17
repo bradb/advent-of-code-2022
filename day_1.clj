@@ -1,4 +1,4 @@
-(ns problem-1
+(ns day-1
   (:require [clojure.string :as str]
             [clojure.java.io :as io]))
 
@@ -31,6 +31,6 @@
          (apply +))))
 
 (comment
-  (let [input "problem-1-1.txt"]
+  (let [input "day-1.txt"]
     (top-n-cals input 3)))
 

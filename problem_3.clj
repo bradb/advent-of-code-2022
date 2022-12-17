@@ -1,6 +1,7 @@
 (ns problem-3
   (:require [clojure.java.io :as io]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [clojure.string :as str]))
 
 (defn sum-priorities
   [rucksacks]
@@ -20,8 +21,35 @@
           0
           rucksacks))
 
+(defn sum-group-badges
+  [rucksacks]
+  (let [groups (partition-all 3 rucksacks)
+        item->priority (fn [item]
+                         (if (>= item 97)
+                           (- item 96)
+                           (- item 38)))]
+    (reduce
+     (fn sum-badges
+       [acc group]
+       (let [item (->> group
+                       (map #(-> %
+                                 (str/split #"")
+                                 set))
+                       (apply set/intersection)
+                       first)]
+         (+ acc (->> (.getBytes item)
+                     (map int)
+                     first
+                     item->priority))))
+
+     0
+     groups)))
+
 (comment
+  (str/split "foobar" #"")
   (with-open [rdr (-> "problem-3-1.txt"
                       io/resource
                       io/reader)]
-    (sum-priorities (line-seq rdr))))
+    (-> rdr
+        line-seq
+        sum-group-badges)))

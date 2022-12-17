@@ -36,17 +36,16 @@
                                  (str/split #"")
                                  set))
                        (apply set/intersection)
-                       first)]
-         (+ acc (->> (.getBytes item)
-                     (map int)
-                     first
-                     item->priority))))
-
+                       first
+                       (.getBytes)
+                       (map int)
+                       first
+                       item->priority)]
+         (+ acc item)))
      0
      groups)))
 
 (comment
-  (str/split "foobar" #"")
   (with-open [rdr (-> "problem-3-1.txt"
                       io/resource
                       io/reader)]

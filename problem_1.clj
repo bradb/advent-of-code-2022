@@ -1,11 +1,13 @@
 (ns problem-1
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io]))
 
 (defn input->calorie-totals
   [input]
   (->> input
-       slurp
-       str/split-lines
+       io/resource
+       io/reader
+       line-seq
        (partition-by str/blank?)
        (reduce (fn [acc [x & _ :as xs]]
                  (if (seq x)
@@ -29,6 +31,6 @@
          (apply +))))
 
 (comment
-  (let [input "data/problem-1-1.txt"]
+  (let [input "problem-1-1.txt"]
     (top-n-cals input 3)))
 

@@ -39,14 +39,18 @@
 
 (defn input->score1
   [input]
-  (with-open [rdr (io/reader input)]
+  (with-open [rdr (-> input
+                      io/resource
+                      io/reader)]
     (reduce add-row-score 0 (->> rdr
                                  line-seq
                                  (map #(str/split % #"\s+"))))))
 
 (defn input->score2
   [input]
-  (with-open [rdr (io/reader input)]
+  (with-open [rdr (-> input
+                      io/resource
+                      io/reader)]
     (reduce add-row-score 0 (->> rdr
                                  line-seq
                                  (map #(str/split % #"\s+"))
@@ -54,5 +58,5 @@
                                         [left (desired-result->choice right left)]))))))
 
 (comment
-  (input->score1 "data/problem-2-1.txt")
-  (input->score2 "data/problem-2-1.txt"))
+  (input->score1 "problem-2-1.txt")
+  (input->score2 "problem-2-1.txt"))

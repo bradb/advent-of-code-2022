@@ -42,28 +42,59 @@
                              (apply vector))))
            vec))
 
+(defn- parsed->instructions
+  [parsed]
+  (map (fn instruction->map
+         [x]
+         (let [[_ move from to] (re-matches parse-instruction-re x)]
+           {:move (Integer/parseInt move), :from (Integer/parseInt from), :to (Integer/parseInt to)}))
+       (:instructions parsed)))
+
+(defn- apply-instruction-9000
+  [acc {:keys [move from to] :as _instr}]
+  (let [from-idx (dec from)
+        to-idx (dec to)
+        from-stack (get acc from-idx)]
+    (-> acc
+        (update from-idx (fn [v]
+                           (into [] (drop-last move v))))
+        (update to-idx (fn [v]
+                         (into [] (concat v (-> move
+                                                (take-last from-stack)
+                                                reverse))))))))
+(defn- apply-instruction-9001
+  [acc {:keys [move from to] :as _instr}]
+  (let [from-idx (dec from)
+        to-idx (dec to)
+        from-stack (get acc from-idx)]
+    (-> acc
+        (update from-idx (fn [v]
+                           (into [] (drop-last move v))))
+        (update to-idx (fn [v]
+                         (into [] (concat v (take-last move from-stack))))))))
+
+;; obviously could have further DRYed up this code, but keen to
+;; move onto next problem now :)
 (defn tops-9000
   [parsed]
   (let [stacks (parsed->stacks parsed)
-
-        instructions (map (fn instruction->map
-                            [x]
-                            (let [[_ move from to] (re-matches parse-instruction-re x)]
-                              {:move (Integer/parseInt move), :from (Integer/parseInt from), :to (Integer/parseInt to)}))
-                          (:instructions parsed))
+        instructions (parsed->instructions parsed)
 
         updated-stacks (reduce
-                        (fn [acc {:keys [move from to] :as _instr}]
-                          (let [from-idx (dec from)
-                                to-idx (dec to)
-                                from-stack (get acc from-idx)]
-                            (-> acc
-                                (update from-idx (fn [v]
-                                                   (into [] (drop-last move v))))
-                                (update to-idx (fn [v]
-                                                 (into [] (concat v (-> move
-                                                                     (take-last from-stack)
-                                                                     reverse))))))))
+                        apply-instruction-9000
+                        stacks
+                        instructions)]
+    (->> updated-stacks
+         (map peek)
+         (str/join))))
+
+(defn tops-9001
+  [parsed]
+  (let [stacks (parsed->stacks parsed)
+        instructions (parsed->instructions parsed)
+
+        updated-stacks (reduce
+                        apply-instruction-9001
                         stacks
                         instructions)]
     (->> updated-stacks
@@ -81,4 +112,4 @@
     (-> rdr
         line-seq
         parse-input
-        tops-9000)))
+        tops-9001)))

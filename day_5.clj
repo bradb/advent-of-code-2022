@@ -29,15 +29,19 @@
                 input)
 
         stacks (some->> (:stacks parsed)
-                        (map #(partition 4 %))
+                        (map #(partition-all 4 %))
                         reverse
                         (apply map (fn [& xs]
                                      (->> (for [x xs
                                                 :let [value (str/join x)]
-                                                :when (not= value "    ")]
+                                                :when (-> value
+                                                          str/trim
+                                                          seq)]
                                             (second x))
                                           (apply vector))))
                         vec)
+
+        _ (tap> stacks)
 
         instructions (map (fn instruction->map
                             [x]
@@ -59,27 +63,18 @@
                                                                      reverse))))))))
                         stacks
                         instructions)]
-    (tap> (->> updated-stacks
-               (map peek)
-               (str/join)))))
+    (->> updated-stacks
+         (map peek)
+         (str/join))))
 
 (comment
   (portal/open)
   (add-tap #'portal/submit)
 
-  (let [test-data "    [D]    
-[N] [C]    
-[Z] [M] [P]
- 1   2   3 
-
-move 1 from 2 to 1
-move 3 from 1 to 3
-move 2 from 2 to 1
-move 1 from 1 to 2"]
-    (with-open [rdr (-> "day-5.txt"
-                        io/resource
-                        io/reader)]
-      (portal/clear)
-      (-> rdr
-          line-seq
-          tops))))
+  (with-open [rdr (-> "day-5.txt"
+                      io/resource
+                      io/reader)]
+    (portal/clear)
+    (-> rdr
+        line-seq
+        tops)))

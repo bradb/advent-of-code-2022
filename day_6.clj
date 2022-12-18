@@ -2,24 +2,27 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(defn stream->start-of-packet
-  [s]
+(defn stream->marker
+  [s n]
   (let [s (vec s)]
     (reduce
      (fn [_ i]
-       (let [sv (subvec s (- i 3) (inc i))]
-         (when (= 4 (count (set sv)))
+       (let [sv (subvec s (- i (dec n)) (inc i))]
+         (when (= n (count (set sv)))
            (reduced (inc i)))))
-     (range 3 (count s)))))
+     (range (dec n) (count s)))))
 
 (comment
   (let [s (-> "day-6.txt"
               io/resource
               slurp
               str/trim)]
-    (stream->start-of-packet s)))
+    (stream->marker s 14)))
 
 (comment
-  (stream->start-of-packet "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw")
-  (stream->start-of-packet "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg")
-  (stream->start-of-packet "bvwbjplbgvbhsrlpgdmjqwftvncz"))
+  (stream->marker "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw" 4)
+  (stream->marker "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" 4)
+  (stream->marker "bvwbjplbgvbhsrlpgdmjqwftvncz" 4)
+
+  (stream->marker "mjqjpqmgbljsphdztnvjfqwrcgsmlb" 14)
+  )

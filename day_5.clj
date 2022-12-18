@@ -39,33 +39,17 @@
                        vec)
 
         stack-rows (some->> (:stacks parsed)
+                            (map #(partition 4 %))
                             reverse
-                            (map #(partition 4 %)))
-
-        #_#_stacks (reduce (fn push-to-stack
-                         [acc row]
-                         (let [segments (partition 4 row)]
-                           (reduce (fn conj-to-stack
-                                     [acc' [first-char value _ _]]
-                                     (case first-char
-                                       \space
-                                       acc
-
-                                       \[
-                                       kkkkkkkk))
-
-                                   acc
-                                   segments)))
-                       stacks
-                       stack-rows)]
-    (tap> stack-rows)
-    (tap> parsed)))
+                            (apply map (fn [& xs]
+                                         (->> (for [x xs
+                                                    :let [value (str/join x)]
+                                                    :when (not= value "    ")]
+                                                x)
+                                              (apply vector)))))]
+    (tap> stack-rows)))
 
 (comment
-  (partition 4 "            [J] [Z] [G]            ")
-  (-> 9
-      (repeat [])
-      vec)
   (portal/open)
   (add-tap #'portal/submit)
 

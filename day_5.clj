@@ -27,20 +27,24 @@
           {:stacks [], :stack-numbers [], :instructions []}
           input))
 
+(defn- parsed->stacks
+  [parsed]
+  (some->> (:stacks parsed)
+           (map #(partition-all 4 %))
+           reverse
+           (apply map (fn [& xs]
+                        (->> (for [x xs
+                                   :let [value (str/join x)]
+                                   :when (-> value
+                                             str/trim
+                                             seq)]
+                               (second x))
+                             (apply vector))))
+           vec))
+
 (defn tops-9000
   [parsed]
-  (let [stacks (some->> (:stacks parsed)
-                        (map #(partition-all 4 %))
-                        reverse
-                        (apply map (fn [& xs]
-                                     (->> (for [x xs
-                                                :let [value (str/join x)]
-                                                :when (-> value
-                                                          str/trim
-                                                          seq)]
-                                            (second x))
-                                          (apply vector))))
-                        vec)
+  (let [stacks (parsed->stacks parsed)
 
         instructions (map (fn instruction->map
                             [x]

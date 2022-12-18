@@ -8,27 +8,28 @@
 (def ^:private instruction-re #"\s*move")
 (def ^:private parse-instruction-re #"move (\d+) from (\d+) to (\d+)")
 
-(defn tops
+(defn- parse-input
   [input]
-  (let [parsed
-        (reduce (fn parse
-                  [acc row]
-                  (cond
-                    (re-seq stack-row-re row)
-                    (update acc :stacks conj row)
+  (reduce (fn parse
+            [acc row]
+            (cond
+              (re-seq stack-row-re row)
+              (update acc :stacks conj row)
 
-                    (re-seq stack-numbers-re row)
-                    (update acc :stack-numbers conj row)
+              (re-seq stack-numbers-re row)
+              (update acc :stack-numbers conj row)
 
-                    (re-seq instruction-re row)
-                    (update acc :instructions conj row)
+              (re-seq instruction-re row)
+              (update acc :instructions conj row)
 
-                    :else
-                    acc))
-                {:stacks [], :stack-numbers [], :instructions []}
-                input)
+              :else
+              acc))
+          {:stacks [], :stack-numbers [], :instructions []}
+          input))
 
-        stacks (some->> (:stacks parsed)
+(defn tops-9000
+  [parsed]
+  (let [stacks (some->> (:stacks parsed)
                         (map #(partition-all 4 %))
                         reverse
                         (apply map (fn [& xs]
@@ -75,4 +76,5 @@
     (portal/clear)
     (-> rdr
         line-seq
-        tops)))
+        parse-input
+        tops-9000)))

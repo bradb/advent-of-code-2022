@@ -41,8 +41,6 @@
                                           (apply vector))))
                         vec)
 
-        _ (tap> stacks)
-
         instructions (map (fn instruction->map
                             [x]
                             (let [[_ move from to] (re-matches parse-instruction-re x)]

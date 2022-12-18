@@ -27,27 +27,16 @@
                 {:stacks [], :stack-numbers [], :instructions []}
                 input)
 
-        num-stacks (some-> (:stack-numbers parsed)
-                           first
-                           str/trim
-                           (str/split #"\s+")
-                           peek
-                           (Integer/parseInt))
-
-        stacks (some-> num-stacks
-                       (repeat [])
-                       vec)
-
-        stack-rows (some->> (:stacks parsed)
-                            (map #(partition 4 %))
-                            reverse
-                            (apply map (fn [& xs]
-                                         (->> (for [x xs
-                                                    :let [value (str/join x)]
-                                                    :when (not= value "    ")]
-                                                x)
-                                              (apply vector)))))]
-    (tap> stack-rows)))
+        stacks (some->> (:stacks parsed)
+                        (map #(partition 4 %))
+                        reverse
+                        (apply map (fn [& xs]
+                                     (->> (for [x xs
+                                                :let [value (str/join x)]
+                                                :when (not= value "    ")]
+                                            (second x))
+                                          (apply vector)))))]
+    (tap> stacks)))
 
 (comment
   (portal/open)

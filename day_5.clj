@@ -80,6 +80,6 @@ move 1 from 1 to 2"]
                         io/resource
                         io/reader)]
       (portal/clear)
-      (-> test-data
-          str/split-lines
+      (-> rdr
+          line-seq
           tops))))

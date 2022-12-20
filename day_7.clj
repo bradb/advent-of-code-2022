@@ -82,6 +82,18 @@ $ ls
             (recur rest-inputs updated-sizes path))))
       sizes)))
 
+(defn sizes->smallest-dir-to-delete
+  [path->size total-disk-space space-required]
+  (let [root-space (get path->size ["/"])
+        unused-space (- total-disk-space root-space)
+        space-to-free (- space-required unused-space)
+        sizes (->> path->size
+                   (map second)
+                   sort)]
+    (->> sizes
+         (filter #(>= % space-to-free))
+         first)))
+
 (comment
   (portal/clear)
   (add-tap #'portal/submit)
@@ -96,7 +108,15 @@ $ ls
                calc-sizes
                (map second)
                (filter #(<= % 100000 ))
-               (apply +)))))
+               (apply +))))
+
+  (let [inputs (parse-input (-> "day-7.txt"
+                                io/resource
+                                io/reader
+                                line-seq))]
+    (portal/clear)
+    (sizes->smallest-dir-to-delete (calc-sizes inputs) 70000000 30000000)))
+
 
 
 

@@ -1,6 +1,7 @@
 (ns day-7
   (:require [clojure.string :as str]
-            [portal.api :as portal]))
+            [portal.api :as portal]
+            [clojure.java.io :as io]))
 
 (def test-data "$ cd /
 $ ls
@@ -26,8 +27,8 @@ $ ls
 5626152 d.ext
 7214296 k")
 
-(defn sum-dir-sizes
-  [input max-dir-size]
+(defn parse-input
+  [input]
   (for [line input
         :let [[p1 p2 p3 :as parts] (str/split line #"\s+")]]
     (cond
@@ -38,14 +39,64 @@ $ ls
       [(keyword p1) p2]
 
       (re-seq #"^\d+$" p1)
-      [:file p2 p1]
+      [:file p2 (Integer/parseInt p1)]
 
       :else
       (throw (Exception. (str "don't know how to parse line: " line))))))
 
 (comment
-  (let []
+  (let [path ["a" "b" "c" "d"]
+        itr (iterate pop path)]
+    (take (count path) itr)))
+
+(defn calc-sizes
+  [inputs]
+  (loop [[first-input & rest-inputs] inputs
+         sizes {}
+         path []]
+    (if (seq first-input)
+      (let [[arg1 arg2 arg3] first-input]
+        (case arg1
+          :cd
+          (if (= arg2 "..")
+            (recur rest-inputs sizes (pop path))
+            (let [new-path (conj path arg2)]
+              (recur rest-inputs (assoc sizes new-path 0) new-path)))
+
+          :ls
+          (recur rest-inputs sizes path)
+
+          :dir
+          (recur rest-inputs (assoc sizes (conj path arg2) 0) path)
+
+          :file
+          (let [file-size arg3
+                updated-sizes (reduce
+                               (fn update-sizes
+                                 [acc path]
+                                 (update acc path + file-size))
+                               sizes
+                               (->> path
+                                    (iterate pop)
+                                    (take (count path))))]
+            (recur rest-inputs updated-sizes path))))
+      sizes)))
+
+(comment
+  (portal/clear)
+  (add-tap #'portal/submit)
+
+
+  (let [inputs (parse-input (-> "day-7.txt"
+                                io/resource
+                                io/reader
+                                line-seq))]
     (portal/clear)
-    (tap> (-> test-data
-              str/split-lines
-              (sum-dir-sizes 100000)))))
+    (tap> (->> inputs
+               calc-sizes
+               (map second)
+               (filter #(<= % 100000 ))
+               (apply +)))))
+
+
+
